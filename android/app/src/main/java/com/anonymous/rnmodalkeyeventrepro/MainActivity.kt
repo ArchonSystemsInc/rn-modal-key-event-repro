@@ -14,7 +14,7 @@ import expo.modules.ReactActivityDelegateWrapper
 
 class MainActivity : ReactActivity() {
   companion object {
-    private const val TAG = "rnmodalkeyeventrepro"
+    private const val TAG = "rnmodalkeyeventrepro-0.73-broken"
   }
 
   override fun dispatchKeyEvent(event: KeyEvent): Boolean {
