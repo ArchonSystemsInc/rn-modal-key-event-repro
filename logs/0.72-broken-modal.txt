@@ -1,0 +1,2 @@
+01-05 16:37:55.833 10909 10909 I rnmodalkeyeventrepro-0.72-broken: onKeyUp 66 KeyEvent { action=ACTION_UP, keyCode=KEYCODE_ENTER, scanCode=0, metaState=0, flags=0x6, repeatCount=0, eventTime=555484427, downTime=555484427, deviceId=-1, source=0x0, displayId=0 } 1
+01-05 16:37:55.962 10909 10909 I rnmodalkeyeventrepro-0.72-broken: onKeyUp 520 KeyEvent { action=ACTION_UP, keyCode=520, scanCode=520, metaState=0, flags=0x8, repeatCount=0, eventTime=555484552, downTime=555484388, deviceId=2, source=0x101, displayId=-1 } 1
