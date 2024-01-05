@@ -13,7 +13,7 @@ import android.view.KeyEvent;
 import expo.modules.ReactActivityDelegateWrapper;
 
 public class MainActivity extends ReactActivity {
-  private static final String TAG = "rnmodalkeyeventrepro";
+  private static final String TAG = "rnmodalkeyeventrepro-0.72-fixed";
 
   @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
