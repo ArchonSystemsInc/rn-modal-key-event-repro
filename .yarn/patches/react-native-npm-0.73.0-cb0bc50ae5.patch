@@ -1,0 +1,84 @@
+diff --git a/ReactAndroid/src/main/java/com/facebook/react/ReactActivity.java b/ReactAndroid/src/main/java/com/facebook/react/ReactActivity.java
+index 28b259596e5ded74d72c2309fdf828fabf8e48ff..b36bceac7449b09586feccb967cc2ec6dd362cc3 100644
+--- a/ReactAndroid/src/main/java/com/facebook/react/ReactActivity.java
++++ b/ReactAndroid/src/main/java/com/facebook/react/ReactActivity.java
+@@ -85,6 +85,11 @@ public abstract class ReactActivity extends AppCompatActivity
+     return mDelegate.onKeyLongPress(keyCode, event) || super.onKeyLongPress(keyCode, event);
+   }
+ 
++  @Override
++  public boolean dispatchKeyEvent(KeyEvent event) {
++    return mDelegate.dispatchKeyEvent(event) || super.dispatchKeyEvent(event);
++  }
++
+   @Override
+   public void onBackPressed() {
+     if (!mDelegate.onBackPressed()) {
+diff --git a/ReactAndroid/src/main/java/com/facebook/react/ReactActivityDelegate.java b/ReactAndroid/src/main/java/com/facebook/react/ReactActivityDelegate.java
+index 61d8e0af79f1e2ea5400d3855980d81b1a90a18a..605e4ed418e56e7106d6ffd0860c5e8efe40c1ee 100644
+--- a/ReactAndroid/src/main/java/com/facebook/react/ReactActivityDelegate.java
++++ b/ReactAndroid/src/main/java/com/facebook/react/ReactActivityDelegate.java
+@@ -173,6 +173,35 @@ public class ReactActivityDelegate {
+     return false;
+   }
+ 
++  public boolean dispatchKeyEvent(KeyEvent event) {
++    int keyCode = event.getKeyCode();
++    if (!ReactFeatureFlags.enableBridgelessArchitecture) {
++      // Handle KEYCODE_MEDIA_FAST_FORWARD events
++      if (event.getAction() == KeyEvent.ACTION_DOWN) {
++        if (getReactNativeHost().hasInstance()
++            && getReactNativeHost().getUseDeveloperSupport()
++            && keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD
++            && event.getAction() == KeyEvent.ACTION_DOWN) {
++          event.startTracking();
++          return true;
++        }
++        if (getReactNativeHost().hasInstance()
++            && getReactNativeHost().getUseDeveloperSupport()
++            && keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD
++            && event.isLongPress()) {
++          getReactNativeHost().getReactInstanceManager().showDevOptionsDialog();
++          return true;
++        }
++      }
++    }
++    // Handle onKeyUp
++    if (event.getAction() == KeyEvent.ACTION_UP) {
++      return onKeyUp(keyCode, event);
++    }
++    
++    return false;
++  }
++
+   public boolean onBackPressed() {
+     return mReactDelegate.onBackPressed();
+   }
+diff --git a/ReactAndroid/src/main/java/com/facebook/react/views/modal/ReactModalHostView.java b/ReactAndroid/src/main/java/com/facebook/react/views/modal/ReactModalHostView.java
+index 2b3de095d40b1648ee551302058fd731b8f54d5c..1d7e370ef6ac206ab1e34639e4c8d38f433f2c12 100644
+--- a/ReactAndroid/src/main/java/com/facebook/react/views/modal/ReactModalHostView.java
++++ b/ReactAndroid/src/main/java/com/facebook/react/views/modal/ReactModalHostView.java
+@@ -308,16 +308,15 @@ public class ReactModalHostView extends ViewGroup implements LifecycleEventListe
+                     "setOnRequestCloseListener must be called by the manager");
+                 mOnRequestCloseListener.onRequestClose(dialog);
+                 return true;
+-              } else {
+-                // We redirect the rest of the key events to the current activity, since the
+-                // activity expects to receive those events and react to them, ie. in the case of
+-                // the dev menu
+-                Activity currentActivity = ((ReactContext) getContext()).getCurrentActivity();
+-                if (currentActivity != null) {
+-                  return currentActivity.onKeyUp(keyCode, event);
+-                }
+               }
+             }
++            // We redirect the rest of the key events to the current activity, since the
++            // activity expects to receive those events and react to them, ie. in the case of
++            // the dev menu
++            Activity currentActivity = ((ReactContext) getContext()).getCurrentActivity();
++            if (currentActivity != null) {
++              return currentActivity.dispatchKeyEvent(event);
++            }
+             return false;
+           }
+         });
